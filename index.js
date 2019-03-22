@@ -1,36 +1,44 @@
 #!/usr/bin/env node
-"use strict";
-const program = require("commander"),
-  chalk = require("chalk"),
-  pkg = require("./package.json"),
-  log = console.log,
-  core = require("./utils/").core;
 
+"use strict";
+const program = require("commander");
+const chalk = require("chalk");
+const pkg = require("./package.json");
+const log = console.log;
+const core = require("./utils/").core;
+const files = require('./utils').files;
+const packages = require('./utils').packages;
+
+// grafi cli
 program
   .version(pkg["version"])
   .option("-a, --analsyis", "show project analysis")
-  .option("-l, --list", "show project dependencies list")
+  .option("-l, --list [packagesType]", "show project dependencies list")
   .option("-s, --show [package] <required>", "show packgae dependencies")
   .parse(process.argv);
 
 // grafi with no args
-const start = async () => {
+(async () => {
   if (!process.argv.slice(2).length) {
-    // display grafi logo and version
-    core.displayGrafi(pkg);
+    core.displayGrafiLogo(pkg);
     log(program.help());
   } else {
-    const files = core.isNodeProject(["package.json", "yarn.lock"]);
-    if (files.includes("package.json")) {
+    const isNodeProject = await files.isFileExist('package.json');
+    if (isNodeProject) {
       if (program.list) {
-        const spinnerShape = ["⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷"];
-        const fileContent = JSON.parse(core.readFileContent("package.json"));
-        if (fileContent.dependencies) {
-          // deps
-          await core.getDeps(fileContent.dependencies);
-        }
-        if (fileContent.devDependencies) {
-          await core.getDeps(fileContent.devDependencies, "dev");
+        switch (program.list) {
+          case 'dev':
+            const devDependencies = await packages.getAll('devDependencies');
+            await core.displayDevelopmentDependencies(devDependencies, "dev");
+            break;
+          case 'prod':
+            const dependencies = await packages.getAll('dependencies');
+            await core.displayProductionDependencies(dependencies, 'prod');
+            break;
+          default:
+            const deps = await packages.getAll();
+            await core.displayProductionAndDevelopmentDependencies(deps);
+            break;
         }
       } else if (program.show) {
         await core.displayAnalysis(program.show);
@@ -38,9 +46,7 @@ const start = async () => {
         await core.displayAnalysis();
       }
     } else {
-      log(chalk.blue("sorry no node project to analyze"));
+      log(`${chalk.red('[Garfi Error]')} ${chalk.blue("make sure, you run command on node project!")}`);
     }
   }
-};
-
-start();
+})();
