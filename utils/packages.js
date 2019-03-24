@@ -9,7 +9,10 @@ packages.getAll = async type => {
   const fileContent = await files.readFile("package.json");
   if (!files.isJSONContent(fileContent)) return [];
   // extract packages
-  const { devDependencies, dependencies } = JSON.parse(fileContent);
+  const {
+    devDependencies,
+    dependencies
+  } = JSON.parse(fileContent);
   switch (type) {
     case "dependencies":
       return dependencies ? dependencies : {};
@@ -17,8 +20,8 @@ packages.getAll = async type => {
       return devDependencies ? devDependencies : {};
     default:
       return {
-        dependencies: dependencies,
-        devDependencies: devDependencies
+        dependencies: dependencies ? dependencies : {},
+        devDependencies: devDependencies ? devDependencies : {}
       };
   }
 };
