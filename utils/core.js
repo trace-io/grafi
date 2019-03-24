@@ -78,7 +78,7 @@ core.displayProductionAndDevelopmentDependencies = async depsObj => {
 
   const spinner = display.spinner("List project dependencies.");
   spinner.stop();
-  display.table(["package", "  sversion"], deps);
+  display.table(["package", "  version"], deps);
 };
 
 core.displayAnalysis = async (package = "") => {
