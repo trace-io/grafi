@@ -1,6 +1,6 @@
 {
   "name": "grafi",
-  "version": "1.0.1",
+  "version": "1.0.1-beta",
   "main": "index.js",
   "license": "MIT",
   "scripts": {
