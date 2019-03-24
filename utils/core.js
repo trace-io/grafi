@@ -21,10 +21,9 @@ core.displayGrafiLogo = async pkg => {
 core.displayDeps = async (depsObj, type = "prod") => {
   const spinner = display.spinner("List project dependencies.");
   const deps = Object.keys(depsObj).map(package => {
-    const version =
-      depsObj[package] !== undefined && depsObj[package] !== ""
-        ? depsObj[package]
-        : "×.×.×";
+    const version = depsObj[package]
+      ? `  ${core.getVersion(depsObj[package])}`
+      : "  ×.×.×";
     package = type === "prod" ? `🚀  ${package}` : `🚧  ${package}`;
     return [package, `${version}`];
   });
@@ -65,10 +64,9 @@ core.displayProductionAndDevelopmentDependencies = async depsObj => {
   const deps = [].concat(
     ...Object.keys(depsObj).map(key => {
       return Object.keys(depsObj[key]).map(package => {
-        const version =
-          depsObj[key][package] !== undefined && depsObj[key][package] !== ""
-            ? depsObj[key][package]
-            : "×.×.×";
+        const version = depsObj[key][package]
+          ? `  ${core.getVersion(depsObj[key][package])}`
+          : "  ×.×.×";
         package =
           key === "dependencies"
             ? chalk.green(`🚀   ${package}`)
@@ -117,32 +115,38 @@ core.displayAnalysis = async (package = "") => {
     )}`
   );
   if (package === "") {
-    let outdated_data_table = outdatedPackagesNames.map(name => [
-      chalk.red("× " + name),
-      outdatedPackages[name].current,
-      outdatedPackages[name].latest
-    ]);
+    let outdated_data_table = outdatedPackagesNames.map(name => {
+      let currentVersion = "×.×.×";
+      if (outdatedPackages[name].current) {
+        currentVersion = outdatedPackages[name].current;
+      } else {
+        if (devAndProdDeps["dependencies"][name]) {
+          currentVersion = core.getVersion(
+            devAndProdDeps["dependencies"][name]
+          );
+        } else if (devAndProdDeps["devDependencies"][name]) {
+          currentVersion = core.getVersion(
+            devAndProdDeps["devDependencies"][name]
+          );
+        }
+      }
+      let latestVersion = outdatedPackages[name].latest
+        ? outdatedPackages[name].latest
+        : "×.×.×";
+      return [chalk.red("× " + name), currentVersion, latestVersion];
+    });
 
     let uptodate_data_table = notoutDatedPackagesNames.map(name => {
       if (devAndProdDeps["dependencies"][name]) {
-        const version = devAndProdDeps["dependencies"][name].includes("^")
-          ? devAndProdDeps["dependencies"][name].trim().split("^")[1]
-          : devAndProdDeps["dependencies"][name];
+        let version = core.getVersion(devAndProdDeps["dependencies"][name]);
         return [chalk.green("✔ " + name), version, version];
       } else {
-        let version = devAndProdDeps["devDependencies"][name];
-        if (version.includes("^")) {
-          version = version.trim().split("^")[1];
-        } else if (version.includes("$")) {
-          version = version.trim().split("$")[1];
-        } else if (version.includes("~")) {
-          version = version.trim().split("~")[1];
-        }
+        let version = core.getVersion(devAndProdDeps["devDependencies"][name]);
         return [chalk.green("✔ " + name), version, version];
       }
     });
     display.table(
-      ["  package", "version", "latest"],
+      ["package", "version", "latest"],
       [...outdated_data_table, ...uptodate_data_table]
     );
   } else {
@@ -165,6 +169,16 @@ core.displayErrorMessage = async () => {
       "report an issue https://github.com/ahmedmenaem/grafi/issues"
     )}`
   );
+};
+
+core.getVersion = version => {
+  const symbol = version.trim()[0];
+  if (["$", "^", "~"].includes(symbol)) {
+    version = version.trim().split(symbol)[1];
+  } else {
+    version = version;
+  }
+  return version;
 };
 
 module.exports = core;

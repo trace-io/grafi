@@ -14,7 +14,6 @@ program
   .version(pkg["version"])
   .option("-a, --analsyis", "show project analysis")
   .option("-l, --list [packagesType]", "show project dependencies list")
-  // .option("-s, --show [package] <required>", "show packgae dependencies")
   .parse(process.argv);
 
 // grafi with no args
@@ -55,6 +54,7 @@ program
       }
     }
   } catch (ex) {
+    console.log(ex);
     core.displayErrorMessage();
   }
 })();
