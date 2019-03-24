@@ -14,18 +14,18 @@ yarn add global grafi
 - grafi
 
 ```
-   ____                   __   _
+   ____                   __   _ 
   / ___|  _ __    __ _   / _| (_)
  | |  _  | '__|  / _` | | |_  | |
  | |_| | | |    | (_| | |  _| | |
   \____| |_|     \__,_| |_|   |_|
-
-Grafi version 1.0.1-beta
-Usage: index [options]
+                                 
+Grafi version 1.0.2-beta
+Usage: grafi [options]
 
 Options:
   -V, --version              output the version number
-  -a, --analsyis             show project analysis
+  -a, --analysis             show project analysis
   -l, --list [packagesType]  show project dependencies list
   -h, --help                 output usage information
 ```
@@ -50,7 +50,7 @@ list all project dependencies
  🚧   parcel-bundler     1.11.0
 ```
 
-- grafi -a or grafi --analsyis
+- grafi -a or grafi --analysis
 
 ```
 [Grafi info] Analyzed (6) packages

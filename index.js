@@ -12,7 +12,7 @@ const packages = require("./utils").packages;
 // grafi cli
 program
   .version(pkg["version"])
-  .option("-a, --analsyis", "show project analysis")
+  .option("-a, --analysis", "show project analysis")
   .option("-l, --list [packagesType]", "show project dependencies list")
   .parse(process.argv);
 
@@ -42,7 +42,7 @@ program
           }
         } else if (program.show) {
           await core.displayAnalysis(program.show);
-        } else if (program.analsyis) {
+        } else if (program.analysis) {
           await core.displayAnalysis();
         }
       } else {

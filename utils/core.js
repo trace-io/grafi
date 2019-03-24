@@ -21,13 +21,13 @@ core.displayGrafiLogo = async pkg => {
 core.displayDeps = async (depsObj, type = "prod") => {
   const spinner = display.spinner("List project dependencies.");
   const deps = Object.keys(depsObj).map(package => {
-    const version = depsObj[package]
-      ? `  ${core.getVersion(depsObj[package])}`
-      : "  ×.×.×";
+    const version = depsObj[package] ?
+      `  ${core.getVersion(depsObj[package])}` :
+      "  ×.×.×";
     package = type === "prod" ? `🚀  ${package}` : `🚧  ${package}`;
     return [package, `${version}`];
   });
-  display.table(["package", "version"], deps);
+  display.table(["package", "  version"], deps);
   spinner.stop();
 };
 
@@ -64,13 +64,13 @@ core.displayProductionAndDevelopmentDependencies = async depsObj => {
   const deps = [].concat(
     ...Object.keys(depsObj).map(key => {
       return Object.keys(depsObj[key]).map(package => {
-        const version = depsObj[key][package]
-          ? `  ${core.getVersion(depsObj[key][package])}`
-          : "  ×.×.×";
+        const version = depsObj[key][package] ?
+          `  ${core.getVersion(depsObj[key][package])}` :
+          "  ×.×.×";
         package =
-          key === "dependencies"
-            ? chalk.green(`🚀   ${package}`)
-            : chalk.red(`🚧   ${package}`);
+          key === "dependencies" ?
+          chalk.green(`🚀   ${package}`) :
+          chalk.red(`🚧   ${package}`);
         return [package, version];
       });
     })
@@ -78,14 +78,14 @@ core.displayProductionAndDevelopmentDependencies = async depsObj => {
 
   const spinner = display.spinner("List project dependencies.");
   spinner.stop();
-  display.table(["package", "version"], deps);
+  display.table(["package", "  sversion"], deps);
 };
 
 core.displayAnalysis = async (package = "") => {
   const message =
-    package === "" || package === undefined
-      ? "Analyze packages to get outdataed."
-      : `Analyzing ${package}`;
+    package === "" || package === undefined ?
+    "Analyze packages to get outdataed." :
+    `Analyzing ${package}`;
   const spinner = display.spinner(message);
   // get the outdated packages
   const outdatedPackages = await npm.outdated();
@@ -130,9 +130,9 @@ core.displayAnalysis = async (package = "") => {
           );
         }
       }
-      let latestVersion = outdatedPackages[name].latest
-        ? outdatedPackages[name].latest
-        : "×.×.×";
+      let latestVersion = outdatedPackages[name].latest ?
+        outdatedPackages[name].latest :
+        "×.×.×";
       return [chalk.red("× " + name), currentVersion, latestVersion];
     });
 
