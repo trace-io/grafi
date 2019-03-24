@@ -54,7 +54,6 @@ program
       }
     }
   } catch (ex) {
-    console.log(ex);
     core.displayErrorMessage();
   }
 })();
