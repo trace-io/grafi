@@ -1,11 +1,10 @@
 const chalk = require("chalk");
-const exec = require("util").promisify(require("child_process").exec);
-const Spinner = require("clui").Spinner;
-const Table = require("cli-table");
 const figlet = require("figlet");
 const treeify = require("treeify");
 const log = console.log;
 const display = require("./display");
+const npm = require("./npm-commander");
+const packages = require("./packages");
 
 const core = {};
 core.displayGrafiLogo = async pkg => {
@@ -20,7 +19,7 @@ core.displayGrafiLogo = async pkg => {
 };
 
 core.displayDeps = async (depsObj, type = "prod") => {
-  const spinner = display.spinner();
+  const spinner = display.spinner("List project dependencies.");
   const deps = Object.keys(depsObj).map(package => {
     const version =
       depsObj[package] !== undefined && depsObj[package] !== ""
@@ -36,7 +35,7 @@ core.displayDeps = async (depsObj, type = "prod") => {
 core.displayProductionDependencies = async deps => {
   log(
     `${chalk.blue("[Grafi Info]")} ${chalk.green(
-      "🚀  Production Dependencies"
+      `🚀  (${Object.keys(deps).length}) Production Dependencies`
     )}`
   );
   core.displayDeps(deps);
@@ -45,7 +44,7 @@ core.displayProductionDependencies = async deps => {
 core.displayDevelopmentDependencies = async deps => {
   log(
     `${chalk.blue("[Grafi Info]")} ${chalk.green(
-      `🚧  Development Dependencies`
+      `🚧  (${Object.keys(deps).length}) Development Dependencies`
     )}`
   );
   core.displayDeps(deps, "dev");
@@ -54,80 +53,118 @@ core.displayDevelopmentDependencies = async deps => {
 core.displayProductionAndDevelopmentDependencies = async depsObj => {
   log(
     `${chalk.blue("[Grafi Info]")} ${chalk.green(
-      "🚀  Production Dependencies"
-    )} ${chalk.red("🚧  Development Dependencies")}`
+      `🚀  (${
+        Object.keys(depsObj["dependencies"]).length
+      }) Production Dependencies`
+    )} ${chalk.red(
+      `🚧  (${
+        Object.keys(depsObj["devDependencies"]).length
+      }) Development Dependencies`
+    )}`
   );
-  const deps = Object.keys(depsObj).map(key => {
-    return Object.keys(depsObj[key]).map(package => {
-      const version =
-        depsObj[key][package] !== undefined && depsObj[key][package] !== ""
-          ? depsObj[key][package]
-          : "×.×.×";
-      package =
-        key === "dependencies"
-          ? chalk.green(`🚀   ${package}`)
-          : chalk.red(`🚧   ${package}`);
-      return [package, version];
-    });
-  });
-  const spinner = display.spinner();
-  // const depstable = new Table({
-  //   // defaultValue: `×.×.×`,
-  //   // errorOnNull: false,
-  //   chars: {
-  //     mid: "",
-  //     "left-mid": "",
-  //     "mid-mid": "",
-  //     "right-mid": ""
-  //   },
-  //   head: ["package", "version"]
-  // });
-  // depstable.push(...[...deps[0], ...deps[1]]);
-  // log(chalk.blue(depstable.toString()));
-  display.table(["package", "version"], [...deps[0], ...deps[1]]);
-  spinner.stop();
-};
+  const deps = [].concat(
+    ...Object.keys(depsObj).map(key => {
+      return Object.keys(depsObj[key]).map(package => {
+        const version =
+          depsObj[key][package] !== undefined && depsObj[key][package] !== ""
+            ? depsObj[key][package]
+            : "×.×.×";
+        package =
+          key === "dependencies"
+            ? chalk.green(`🚀   ${package}`)
+            : chalk.red(`🚧   ${package}`);
+        return [package, version];
+      });
+    })
+  );
 
-core.getOutdated = async package => {
-  const msg =
-    package === "" || package === undefined
-      ? "Analyze packages to get outdataed."
-      : `Analyzing ${package}`;
-  const spinner = display.spinner();
-  try {
-    const outdated = await exec("npm outdated --json");
-    if (outdated.stdout) {
-      return JSON.parse(outdated.stdout);
-    }
-    return {};
-  } catch (ex) {
-    if (ex.stdout) {
-      return JSON.parse(ex.stdout);
-    } else {
-      log(chalk.red("some thing wrong happend"));
-    }
-  } finally {
-    spinner.stop();
-  }
+  const spinner = display.spinner("List project dependencies.");
+  spinner.stop();
+  display.table(["package", "version"], deps);
 };
 
 core.displayAnalysis = async (package = "") => {
-  const deps = await core.getOutdated(package);
-  const names = Object.keys(deps);
+  const message =
+    package === "" || package === undefined
+      ? "Analyze packages to get outdataed."
+      : `Analyzing ${package}`;
+  const spinner = display.spinner(message);
+  // get the outdated packages
+  const outdatedPackages = await npm.outdated();
+  const outdatedPackagesNames = Object.keys(outdatedPackages);
+  // get all packges
+  const devAndProdDeps = await packages.getAll();
+  const devAndProdDepsNames = [].concat(
+    ...Object.keys(devAndProdDeps).map(name =>
+      Object.keys(devAndProdDeps[name])
+    )
+  );
+  // get not-outdated packages
+  const notoutDatedPackagesNames = devAndProdDepsNames.filter(
+    devAndProdDepsName => !outdatedPackagesNames.includes(devAndProdDepsName)
+  );
+  spinner.stop();
+  log(
+    `${chalk.blue("[Grafi info]")} ${chalk.green(
+      `Analyzed ${chalk.red(`(${devAndProdDepsNames.length})`)} packages`
+    )}`
+  );
+  log(
+    `${chalk.blue("[Grafi info]")} ${chalk.green(
+      `✔ ${chalk.red(`(${notoutDatedPackagesNames.length})`)} uptodate`
+    )} ${chalk.green(
+      `× ${chalk.red(`(${outdatedPackagesNames.length})`)} outdated`
+    )}`
+  );
   if (package === "") {
-    const required_table = names.map(name => [
-      deps[name].current !== deps[name].latest
-        ? chalk.red("× " + name)
-        : chalk.green(name),
-      deps[name].current,
-      deps[name].latest
+    let outdated_data_table = outdatedPackagesNames.map(name => [
+      chalk.red("× " + name),
+      outdatedPackages[name].current,
+      outdatedPackages[name].latest
     ]);
-    display.table(["  package", "version", "latest"], required_table);
+
+    let uptodate_data_table = notoutDatedPackagesNames.map(name => {
+      if (devAndProdDeps["dependencies"][name]) {
+        const version = devAndProdDeps["dependencies"][name].includes("^")
+          ? devAndProdDeps["dependencies"][name].trim().split("^")[1]
+          : devAndProdDeps["dependencies"][name];
+        return [chalk.green("✔ " + name), version, version];
+      } else {
+        let version = devAndProdDeps["devDependencies"][name];
+        if (version.includes("^")) {
+          version = version.trim().split("^")[1];
+        } else if (version.includes("$")) {
+          version = version.trim().split("$")[1];
+        } else if (version.includes("~")) {
+          version = version.trim().split("~")[1];
+        }
+        return [chalk.green("✔ " + name), version, version];
+      }
+    });
+    display.table(
+      ["  package", "version", "latest"],
+      [...outdated_data_table, ...uptodate_data_table]
+    );
   } else {
-    const required_package = deps[package];
+    const required_package = outdatedPackages[package];
     log(chalk.green(package));
     log(chalk.blue(treeify.asTree(required_package, true)));
   }
+};
+
+core.displayErrorMessage = async () => {
+  log(
+    chalk.red(
+      figlet.textSync("Oh, we are sorry.", {
+        horizontalLayout: "default"
+      })
+    )
+  );
+  log(
+    `${chalk.red("[Grafi Error]")}: ${chalk.red.green(
+      "report an issue https://github.com/ahmedmenaem/grafi/issues"
+    )}`
+  );
 };
 
 module.exports = core;

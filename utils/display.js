@@ -14,11 +14,8 @@ display.table = (headers, data) => {
   log(chalk.blue(table.toString()));
 };
 display.tree = data => {};
-display.spinner = () => {
-  let spinner = new Spinner(
-    chalk.green("List project dependencies."),
-    config.spinner.shape
-  );
+display.spinner = (messgae = "") => {
+  let spinner = new Spinner(chalk.green(messgae), config.spinner.shape);
   // start pinner
   spinner.start();
   return spinner;
