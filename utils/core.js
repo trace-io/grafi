@@ -24,7 +24,7 @@ core.displayDeps = async (depsObj, type = "prod") => {
     const version = depsObj[package] ?
       `  ${core.getVersion(depsObj[package])}` :
       "  ×.×.×";
-    package = type === "prod" ? `🚀  ${package}` : `🚧  ${package}`;
+    package = type === "prod" ? `🚀 ${package}` : `🚧 ${package}`;
     return [package, `${version}`];
   });
   display.table(["package", "  version"], deps);
@@ -34,7 +34,7 @@ core.displayDeps = async (depsObj, type = "prod") => {
 core.displayProductionDependencies = async deps => {
   log(
     `${chalk.blue("[Grafi Info]")} ${chalk.green(
-      `🚀  (${Object.keys(deps).length}) Production Dependencies`
+      `🚀 (${Object.keys(deps).length}) Production Dependencies`
     )}`
   );
   core.displayDeps(deps);
@@ -43,7 +43,7 @@ core.displayProductionDependencies = async deps => {
 core.displayDevelopmentDependencies = async deps => {
   log(
     `${chalk.blue("[Grafi Info]")} ${chalk.green(
-      `🚧  (${Object.keys(deps).length}) Development Dependencies`
+      `🚧 (${Object.keys(deps).length}) Development Dependencies`
     )}`
   );
   core.displayDeps(deps, "dev");
@@ -52,11 +52,11 @@ core.displayDevelopmentDependencies = async deps => {
 core.displayProductionAndDevelopmentDependencies = async depsObj => {
   log(
     `${chalk.blue("[Grafi Info]")} ${chalk.green(
-      `🚀  (${
+      `🚀 (${
         Object.keys(depsObj["dependencies"]).length
       }) Production Dependencies`
     )} ${chalk.red(
-      `🚧  (${
+      `🚧 (${
         Object.keys(depsObj["devDependencies"]).length
       }) Development Dependencies`
     )}`
@@ -69,8 +69,8 @@ core.displayProductionAndDevelopmentDependencies = async depsObj => {
           "  ×.×.×";
         package =
           key === "dependencies" ?
-          chalk.green(`🚀   ${package}`) :
-          chalk.red(`🚧   ${package}`);
+          chalk.green(`🚀 ${package}`) :
+          chalk.red(`🚧 ${package}`);
         return [package, version];
       });
     })
