@@ -222,21 +222,34 @@ core.takeSnapShot = async snapshot => {
 
 core.displaySnapShot = async snapshot => {
   if (snapshot === true) {
-    const snapshots = store.getOne(`snapshots`);
-    const snapshotsCounts = Object.keys(snapshots).length;
-    log(
-      `${chalk.blue("[Grafi info]")} ${chalk.green(
-        `Total (${snapshotsCounts}) snapshots`
-      )}`
-    );
-    Object.keys(snapshots).forEach(snap => {
-      log(`${chalk.blue("*")} ${chalk.green(`${snap}`)}`);
-    });
-    log(
-      `${chalk.blue("[Grafi info]")} ${chalk.green(
-        `grafi --snapshots <snapshot name>`
-      )}`
-    );
+    if (store.has(`snapshots`)) {
+      const snapshots = store.getOne(`snapshots`);
+      const snapshotsCounts = Object.keys(snapshots).length;
+      log(
+        `${chalk.blue("[Grafi info]")} ${chalk.green(
+          `Total (${snapshotsCounts}) snapshots`
+        )}`
+      );
+      Object.keys(snapshots).forEach(snap => {
+        log(`${chalk.blue("*")} ${chalk.green(`${snap}`)}`);
+      });
+      log(
+        `${chalk.blue("[Grafi info]")} ${chalk.green(
+          `grafi --snapshots <snapshot name>`
+        )}`
+      );
+    } else {
+      log(
+        `${chalk.blue("[Grafi info]")} ${chalk.green(
+          `No snapshots created yet`
+        )}`
+      );
+      log(
+        `${chalk.blue("[Grafi info]")} ${chalk.green(
+          `grafi --snapshot <snapshot name>`
+        )}`
+      );
+    }
   } else {
     if (store.has(`snapshots.${snapshot}`)) {
       log(
