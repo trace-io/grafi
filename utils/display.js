@@ -3,6 +3,7 @@ const chalk = require("chalk");
 const Spinner = require("clui").Spinner;
 const config = require("../config");
 const log = console.log;
+const treeify = require("treeify");
 
 const display = {};
 display.table = (headers, data) => {
@@ -13,7 +14,9 @@ display.table = (headers, data) => {
   table.push(...data);
   log(chalk.blue(table.toString()));
 };
-display.tree = data => {};
+display.tree = data => {
+  treeify.asTree(data);
+};
 display.spinner = (messgae = "") => {
   let spinner = new Spinner(chalk.green(messgae), config.spinner.shape);
   // start pinner

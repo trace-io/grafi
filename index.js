@@ -11,9 +11,11 @@ const packages = require("./utils").packages;
 
 // grafi cli
 program
-  .version(pkg["version"])
+  .version(pkg["version"], "-v, --version")
   .option("-a, --analysis", "show project analysis")
   .option("-l, --list [packagesType]", "show project dependencies list")
+  .option("--snapshot [name]", "take a snapshot of the current dependencies")
+  .option("--snapshots [name]", "list all taken snapshots")
   .parse(process.argv);
 
 // grafi with no args
@@ -44,6 +46,10 @@ program
           await core.displayAnalysis(program.show);
         } else if (program.analysis) {
           await core.displayAnalysis();
+        } else if (program.snapshot) {
+          await core.takeSnapShot(program.snapshot);
+        } else if (program.snapshots) {
+          await core.displaySnapShot(program.snapshots);
         }
       } else {
         log(
@@ -54,6 +60,7 @@ program
       }
     }
   } catch (ex) {
+    console.log(ex);
     core.displayErrorMessage();
   }
 })();
