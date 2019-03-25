@@ -22,9 +22,9 @@ core.displayGrafiLogo = async pkg => {
 core.displayDeps = async (depsObj, type = "prod") => {
   const spinner = display.spinner("List project dependencies.");
   const deps = Object.keys(depsObj).map(package => {
-    const version = depsObj[package]
-      ? `  ${core.getVersion(depsObj[package])}`
-      : "  ×.×.×";
+    const version = depsObj[package] ?
+      `  ${core.getVersion(depsObj[package])}` :
+      "  ×.×.×";
     package = type === "prod" ? `🚀 ${package}` : `🚧 ${package}`;
     return [package, `${version}`];
   });
@@ -33,20 +33,12 @@ core.displayDeps = async (depsObj, type = "prod") => {
 };
 
 core.displayProductionDependencies = async deps => {
-  log(
-    `${chalk.blue("[Grafi Info]")} ${chalk.green(
-      `🚀 (${Object.keys(deps).length}) Production Dependencies`
-    )}`
-  );
+  display.message('info', `🚀 (${Object.keys(deps).length}) Production Dependencies`);
   core.displayDeps(deps);
 };
 
 core.displayDevelopmentDependencies = async deps => {
-  log(
-    `${chalk.blue("[Grafi Info]")} ${chalk.green(
-      `🚧 (${Object.keys(deps).length}) Development Dependencies`
-    )}`
-  );
+  display.message('info', `🚧 (${Object.keys(deps).length}) Development Dependencies`);
   core.displayDeps(deps, "dev");
 };
 
@@ -65,13 +57,13 @@ core.displayProductionAndDevelopmentDependencies = async depsObj => {
   const deps = [].concat(
     ...Object.keys(depsObj).map(key => {
       return Object.keys(depsObj[key]).map(package => {
-        const version = depsObj[key][package]
-          ? `  ${core.getVersion(depsObj[key][package])}`
-          : "  ×.×.×";
+        const version = depsObj[key][package] ?
+          `  ${core.getVersion(depsObj[key][package])}` :
+          "  ×.×.×";
         package =
-          key === "dependencies"
-            ? chalk.green(`🚀 ${package}`)
-            : chalk.red(`🚧 ${package}`);
+          key === "dependencies" ?
+          chalk.green(`🚀 ${package}`) :
+          chalk.red(`🚧 ${package}`);
         return [package, version];
       });
     })
@@ -84,9 +76,9 @@ core.displayProductionAndDevelopmentDependencies = async depsObj => {
 
 core.displayAnalysis = async (package = "") => {
   const message =
-    package === "" || package === undefined
-      ? "Analyze packages to get outdataed."
-      : `Analyzing ${package}`;
+    package === "" || package === undefined ?
+    "Analyze packages to get outdataed." :
+    `Analyzing ${package}`;
   const spinner = display.spinner(message);
   // get the outdated packages
   const outdatedPackages = await npm.outdated();
@@ -103,18 +95,8 @@ core.displayAnalysis = async (package = "") => {
     devAndProdDepsName => !outdatedPackagesNames.includes(devAndProdDepsName)
   );
   spinner.stop();
-  log(
-    `${chalk.blue("[Grafi info]")} ${chalk.green(
-      `Analyzed ${chalk.red(`(${devAndProdDepsNames.length})`)} packages`
-    )}`
-  );
-  log(
-    `${chalk.blue("[Grafi info]")} ${chalk.green(
-      `✔ ${chalk.red(`(${notoutDatedPackagesNames.length})`)} uptodate`
-    )} ${chalk.green(
-      `× ${chalk.red(`(${outdatedPackagesNames.length})`)} outdated`
-    )}`
-  );
+  display.message('info', `Analyzed ${chalk.red(`(${devAndProdDepsNames.length})`)} packages`);
+  display.message('info', `✔ ${chalk.red(`(${notoutDatedPackagesNames.length})`)} uptodate × ${chalk.red(`(${outdatedPackagesNames.length})`)} outdated`)
   if (package === "") {
     let outdated_data_table = outdatedPackagesNames.map(name => {
       let currentVersion = "×.×.×";
@@ -131,9 +113,9 @@ core.displayAnalysis = async (package = "") => {
           );
         }
       }
-      let latestVersion = outdatedPackages[name].latest
-        ? outdatedPackages[name].latest
-        : "×.×.×";
+      let latestVersion = outdatedPackages[name].latest ?
+        outdatedPackages[name].latest :
+        "×.×.×";
       return [chalk.red("× " + name), currentVersion, latestVersion];
     });
 
@@ -165,11 +147,7 @@ core.displayErrorMessage = async () => {
       })
     )
   );
-  log(
-    `${chalk.red("[Grafi Error]")}: ${chalk.red.green(
-      "report an issue https://github.com/ahmedmenaem/grafi/issues"
-    )}`
-  );
+  display.message('error', "report an issue https://github.com/ahmedmenaem/grafi/issues");
 };
 
 core.getVersion = version => {
@@ -180,94 +158,6 @@ core.getVersion = version => {
     version = version;
   }
   return version;
-};
-
-core.takeSnapShot = async snapshot => {
-  if (snapshot === true) {
-    log(
-      `${chalk.red("[Grafi error]")} ${chalk.green(
-        `please enter a valid snapshot name`
-      )}`
-    );
-    log(
-      `${chalk.blue("[Grafi info]")} ${chalk.green(
-        `grafi --snapshot <snapshot name>`
-      )}`
-    );
-  } else if (snapshot && !store.has(`snapshots.${snapshot}`)) {
-    const spinner = display.spinner(
-      `creating snapshot with name (${snapshot})`
-    );
-    let deps = await packages.getAll();
-    const done = store.save(`snapshots.${snapshot}`, deps);
-    spinner.stop();
-    log(
-      `${chalk.blue("[Grafi info]")} ${chalk.green(
-        "snapshot saved successfully"
-      )}`
-    );
-  } else {
-    log(
-      `${chalk.red("[Grafi error]")} ${chalk.green(
-        `snapshot with the name (${snapshot}) already exists`
-      )}`
-    );
-    log(
-      `${chalk.blue("[Grafi info]")} ${chalk.green(
-        `grafi --snapshots ${snapshot}`
-      )}`
-    );
-  }
-};
-
-core.displaySnapShot = async snapshot => {
-  if (snapshot === true) {
-    if (store.has(`snapshots`)) {
-      const snapshots = store.getOne(`snapshots`);
-      const snapshotsCounts = Object.keys(snapshots).length;
-      log(
-        `${chalk.blue("[Grafi info]")} ${chalk.green(
-          `Total (${snapshotsCounts}) snapshots`
-        )}`
-      );
-      Object.keys(snapshots).forEach(snap => {
-        log(`${chalk.blue("*")} ${chalk.green(`${snap}`)}`);
-      });
-      log(
-        `${chalk.blue("[Grafi info]")} ${chalk.green(
-          `grafi --snapshots <snapshot name>`
-        )}`
-      );
-    } else {
-      log(
-        `${chalk.blue("[Grafi info]")} ${chalk.green(
-          `No snapshots created yet`
-        )}`
-      );
-      log(
-        `${chalk.blue("[Grafi info]")} ${chalk.green(
-          `grafi --snapshot <snapshot name>`
-        )}`
-      );
-    }
-  } else {
-    if (store.has(`snapshots.${snapshot}`)) {
-      log(
-        `${chalk.red("[Grafi info]")} ${chalk.green(
-          `dependencies for ${chalk.blue(snapshot)}`
-        )}`
-      );
-      core.displayProductionAndDevelopmentDependencies(
-        store.getOne(`snapshots.${snapshot}`)
-      );
-    } else {
-      log(
-        `${chalk.red("[Grafi error]")} ${chalk.green(
-          `snapshot with the name (${snapshot}) does not exists`
-        )}`
-      );
-    }
-  }
 };
 
 module.exports = core;

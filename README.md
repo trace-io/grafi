@@ -35,9 +35,9 @@ Options:
 ```
 version 1.0.0
 ```
+# list all project dependencies
 
-- grafi -l or grafi --list
-
+- grafi -l or grafi --list <type ['dev', 'prod'] optional>
 ```
 list all project dependencies
 [Grafi Info] 🚀  (5) Production Dependencies 🚧  (1) Development Dependencies
@@ -50,8 +50,8 @@ list all project dependencies
  🚧   parcel-bundler     1.11.0
 ```
 
+# check for oudated and uptodate packages
 - grafi -a or grafi --analysis
-
 ```
 [Grafi info] Analyzed (6) packages
 [Grafi info] ✔ (2) uptodate × (4) outdated
@@ -62,6 +62,24 @@ list all project dependencies
  × react-dom        16.7.0    16.8.5
  ✔ @reach/router    1.2.1     1.2.1
  ✔ reqwest          2.0.5     2.0.5
+```
+
+# snapshots
+```
+snapshot is very helpfull for memorize project dependencies
+```
+## take snapshot
+- grafi --snapshot <name>
+```
+[info] snapshot saved successfully
+```
+## list all snapshots
+- grafi --snapshots <name optional>
+```
+[info] Total (1) snapshots
+* mysnapshot
+[info] grafi --snapshots <snapshot name>
+
 ```
 
 ## License

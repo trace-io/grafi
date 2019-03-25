@@ -8,6 +8,8 @@ const log = console.log;
 const core = require("./utils/").core;
 const files = require("./utils").files;
 const packages = require("./utils").packages;
+const snapshots = require('./utils').snapshots;
+const display = require('./utils').display;
 
 // grafi cli
 program
@@ -47,20 +49,15 @@ program
         } else if (program.analysis) {
           await core.displayAnalysis();
         } else if (program.snapshot) {
-          await core.takeSnapShot(program.snapshot);
+          await snapshots.takeSnapshot(program.snapshot);
         } else if (program.snapshots) {
-          await core.displaySnapShot(program.snapshots);
+          await snapshots.displaySnapshots(program.snapshots)
         }
       } else {
-        log(
-          `${chalk.red("[Garfi Error]")} ${chalk.blue(
-            "make sure, you run command on node project!"
-          )}`
-        );
+        display.message('error', "make sure, you run command on node project!");
       }
     }
   } catch (ex) {
-    console.log(ex);
     core.displayErrorMessage();
   }
 })();
