@@ -20,15 +20,16 @@
   "preferGlobal": true,
   "dependencies": {
     "chalk": "^2.4.2",
-    "cli-table": "^0.3.1",
-    "clui": "^0.3.6",
-    "commander": "^2.19.0",
-    "configstore": "^4.0.0",
-    "figlet": "^1.2.1",
-    "inquirer": "^6.2.2",
+    "cli-table": "0.3.1",
+    "clui": "0.3.6",
+    "command-exists": "^1.2.8",
+    "commander": "2.19.0",
+    "configstore": "4.0.0",
+    "figlet": "1.2.1",
+    "inquirer": "6.2.2",
     "treeify": "^1.1.0"
   },
   "devDependencies": {
-    "nodemon": "^1.18.10"
+    "nodemon": "1.18.10"
   }
 }
